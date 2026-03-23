@@ -16,7 +16,7 @@ def send_mail(file_path):
     auth_code = config['auth_code']
     smtp_server = config.get('smtp_server', 'smtp.163.com')
     smtp_port = config.get('smtp_port', 465)
-    receiver_email = config['send_kindle_emali']
+    receiver_email = config['send_kindle_email']
 
     if not os.path.exists(file_path):
         print(f'Error: File {file_path} not found.')

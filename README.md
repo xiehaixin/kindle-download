@@ -1,11 +1,11 @@
 # Kindle Download Skill
 
 <p align="center">
-  <strong>一个用于 OpenClaw 的 Kindle 电子书下载技能</strong>
+<strong>一个用于 OpenClaw 的 Kindle 电子书下载技能</strong>
 </p>
 
 <p align="center">
-  自动从 Z-Library 搜索、下载电子书，并发送到你的 Kindle 设备
+自动从 Z-Library 搜索、下载电子书，并发送到你的 Kindle 设备
 </p>
 
 ---
@@ -24,28 +24,32 @@
 
 ## 📋 前置要求
 
+> ⚠️ **重要**：本技能需要在**运行 OpenClaw 的服务器上**安装以下依赖，而不是你的本地电脑。
+
 ### 1. OpenClaw 环境
 
-本项目是一个 [OpenClaw](https://github.com/openclaw/openclaw) 的 Skill，需要先安装 OpenClaw。
+本项目是一个 OpenClaw 的 Skill，需要先安装 OpenClaw。
 
 ### 2. Node.js 和 Playwright
 
-需要安装 Node.js 和 Playwright：
+需要在服务器上安装 Node.js 和 Playwright：
 
 ```bash
 # 安装 Node.js（推荐使用 nvm）
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+source ~/.bashrc
 nvm install 18
 nvm use 18
 
-# 安装 Playwright
+# 安装 Playwright（在 Skill 目录下执行）
+cd ~/.openclaw/workspace/skills/kindle-download
 npm install playwright
 npx playwright install chromium
 ```
 
 ### 3. Python
 
-需要 Python 3 用于发送邮件（大多数系统已预装）。
+需要 Python 3 用于发送邮件（大多数 Linux 系统已预装）。
 
 ### 4. Z-Library 账号
 
@@ -61,13 +65,13 @@ npx playwright install chromium
 
 ## 🚀 安装
 
-### 方法一：直接复制
+### 方法一：直接克隆
 
 将本项目复制到 OpenClaw 的 skills 目录：
 
 ```bash
 cd ~/.openclaw/workspace/skills/
-git clone https://github.com/your-username/kindle-download.git
+git clone https://github.com/xiehaixin/kindle-download.git
 ```
 
 ### 方法二：创建符号链接
@@ -85,7 +89,14 @@ ln -s /path/to/kindle-download ~/.openclaw/workspace/skills/kindle-download
 
 ### 1. 配置 auth.json
 
-在 Skill 根目录下创建 `auth.json` 文件：
+复制示例文件并根据实际情况修改：
+
+```bash
+cd ~/.openclaw/workspace/skills/kindle-download
+cp auth.json.example auth.json
+```
+
+编辑 `auth.json` 文件：
 
 ```json
 {
@@ -140,7 +151,7 @@ ln -s /path/to/kindle-download ~/.openclaw/workspace/skills/kindle-download
 
 ### 3. 配置代理（可选）
 
-如果需要使用代理访问 Z-Library，在 `auth.json` 中添加：
+如果服务器无法直接访问 Z-Library，在 `auth.json` 中配置代理：
 
 ```json
 {
@@ -186,14 +197,14 @@ kindle 下载 三体，作者刘慈欣，出版社重庆出版社
 
 ```
 AI: 搜索结果包含多个不同的作者或出版社，请查看截图并告诉我您选择的作者或出版社。
-    <截图>
+<截图>
 
 你: 我选择机械工业出版社
 
 AI: 第一步登录已完成。
     第二步查找书籍已完成。
     第三步下载书籍已完成。
-    第四步发送已完成，已发送
+    第四步发送已完成。已发送
 ```
 
 ---
@@ -204,15 +215,14 @@ AI: 第一步登录已完成。
 kindle-download/
 ├── README.md           # 项目说明文档
 ├── SKILL.md            # OpenClaw Skill 定义文件
-├── AIREAD.md           # AI 执行流程说明
-├── BEFORE.md           # 前置条件说明
-├── auth.json           # 认证配置（需自行创建）
+├── auth.json.example   # 配置文件示例
 ├── zlibraryUrl.json    # Z-Library 镜像站列表
 └── scripts/
     ├── workflow.js     # 主要下载流程脚本
-    ├── send_kindle.py  # 邮件发送脚本
-    └── download_book.py# 下载辅助脚本
+    └── send_kindle.py  # 邮件发送脚本
 ```
+
+> 注意：`auth.json` 需要自行创建，不包含在项目中。
 
 ---
 
@@ -238,34 +248,31 @@ kindle-download/
 
 ```
 ┌─────────────────┐
-│   用户发起请求   │
+│  用户发起请求    │
 └────────┬────────┘
          ▼
 ┌─────────────────┐
-│  第一步：登录    │
-│  Z-Library      │
+│ 第一步：登录     │
+│   Z-Library     │
 └────────┬────────┘
          ▼
 ┌─────────────────┐
-│  第二步：搜索    │
-│  查找书籍        │
+│ 第二步：查找     │
+│   搜索书籍       │
 └────────┬────────┘
          ▼
 ┌─────────────────┐
-│  第三步：选择    │
-│  多个结果时交互  │
+│ 第三步：下载     │
+│   获取电子书     │
 └────────┬────────┘
          ▼
 ┌─────────────────┐
-│  第四步：下载    │
-│  获取电子书文件  │
-└────────┬────────┘
-         ▼
-┌─────────────────┐
-│  第五步：发送    │
+│ 第四步：发送     │
 │  发送到 Kindle   │
 └─────────────────┘
 ```
+
+> 如果搜索结果有多个版本，会在第二步后暂停，等待用户选择。
 
 ---
 
@@ -289,7 +296,7 @@ kindle-download/
 ### 发送失败
 
 - 检查 `auth.json` 配置是否正确
-- 确认 SMTP 授权码有效
+- 确认 SMTP 授权码有效（不是邮箱密码）
 - 确认发送邮箱已添加到 Kindle 白名单
 
 ### 登录失败
@@ -301,12 +308,17 @@ kindle-download/
 
 - 确保 Node.js 已正确安装
 - 检查 PATH 环境变量是否包含 Node.js 路径
-- 使用完整路径：`/usr/bin/node` 或 `/usr/local/bin/node`
+- 使用完整路径：`/usr/bin/node` 或 `/home/用户名/.nvm/versions/node/v18/bin/node`
 
 ### Chromium 找不到
 
-- 运行 `npx playwright install chromium`
-- 或安装系统 Chrome/Chromium 浏览器
+```bash
+# 在 Skill 目录下执行
+cd ~/.openclaw/workspace/skills/kindle-download
+npx playwright install chromium
+```
+
+或安装系统 Chrome/Chromium 浏览器。
 
 ---
 
