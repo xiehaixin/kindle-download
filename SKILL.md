@@ -4,6 +4,30 @@ description: >
   专门用于为 Kindle 下载和推送电子书。
   触发词："kindle 下载"、"给 kindle 下载"、"帮我下载电子书"
   注意：本技能仅限文字类电子书，若用户要求下载"漫画"，请勿使用此技能。
+
+requirements:
+  binaries:
+    - node
+    - python3
+  node_modules:
+    - playwright
+  configs:
+    - path: ~/.config/kindle-download/auth.json
+      description: 包含 Z-Library 账户信息和 SMTP 邮件发送配置
+      required_fields:
+        - library_account_email
+        - library_password
+        - email
+        - auth_code
+        - send_kindle_email
+    - path: ~/.openclaw/workspace/skills/kindle-download/zlibraryUrl.json
+      description: Z-Library 镜像列表
+  network:
+    - description: 访问 Z-Library 镜像站点进行搜索和下载
+    - description: 使用 SMTP 服务发送邮件至 Kindle
+  storage:
+    - path: /tmp/kindle_downloads/
+      description: 临时存放下载的书籍和搜索截图
 ---
 
 # ⚠️ 严格执行规则（必须遵守）
@@ -21,15 +45,15 @@ description: >
 
 ## 步骤 1：执行搜索脚本
 
-解析用户输入后，**立即执行以下命令**：
+解析用户输入后，**立即执行以下命令**（确保 node 在环境变量中）：
 
 ```bash
-~/.nvm/versions/node/v24.14.0/bin/node ~/.openclaw/workspace/skills/kindle-download/scripts/workflow.js "书名" '{"author": "作者", "publisher": "出版社"}'
+node ~/.openclaw/workspace/skills/kindle-download/scripts/workflow.js "书名" '{"author": "作者", "publisher": "出版社"}'
 ```
 
-- 只有书名：第二个参数用 \'{}\'
-- 有作者：第二个参数用 \'{author: 作者名}\'
-- 有出版社：第二个参数用 \'{publisher: 出版社名}\'
+- 只有书名：第二个参数用 '{}'
+- 有作者：第二个参数用 '{author: 作者名}'
+- 有出版社：第二个参数用 '{publisher: 出版社名}'
 
 ---
 
@@ -47,20 +71,20 @@ description: >
 **含义**：需要用户选择
 **动作**：
 1. **立即停止执行**
-2. 发送截图：`<qqimg>/tmp/kindle_downloads/last_search_result.png</qqimg>`
+2. 发送截图：<qqimg>/tmp/kindle_downloads/last_search_result.png</qqimg>
 3. 回复："搜索结果包含多个不同的作者或出版社，请查看截图并告诉我您选择的作者或出版社。"
 4. **等待用户回复**，回复后重新执行步骤 1（带上用户选择条件）
 
 ### 情况 C：看到 ERROR: NO_MATCHING_BOOK
 **含义**：没有找到符合的书籍
 **动作**：
-1. 发送截图：`<qqimg>/tmp/kindle_downloads/last_search_result.png</qqimg>`
+1. 发送截图：<qqimg>/tmp/kindle_downloads/last_search_result.png</qqimg>
 2. 回复："没有找到符合要求的书籍，请查看截图。"
 
 ### 情况 D：看到其他 ERROR:
 **含义**：发生错误
 **动作**：
-1. 发送错误截图：`<qqimg>/tmp/kindle_downloads/last_error.png</qqimg>`
+1. 发送错误截图：<qqimg>/tmp/kindle_downloads/last_error.png</qqimg>
 2. 回复具体错误信息
 
 ---
