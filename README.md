@@ -96,13 +96,13 @@ cp ~/.openclaw/workspace/skills/kindle-download/auth.json.example ~/.config/kind
 
 | 配置项 | 说明 | 必填 |
 |--------|------|------|
-| `email` | 用于发送电子书的邮箱地址 | ✅ |
-| `auth_code` | SMTP 授权码（不是邮箱密码） | ✅ |
-| `smtp_server` | SMTP 服务器地址 | ✅ |
-| `smtp_port` | SMTP 服务器端口 | ✅ |
-| `send_kindle_email` | Kindle 接收邮箱（`xxx@kindle.com`） | ✅ |
-| `library_account_email` | Z-Library 账号邮箱 | ✅ |
-| `library_password` | Z-Library 账号密码 | ✅ |
+| `email` | 用于将下载到本地的电子书自动发送到kindle接收邮箱的邮箱 | ✅ |
+| `auth_code` | SMTP 授权码（email的SMTP授权码，不是邮箱密码） | ✅ |
+| `smtp_server` | SMTP 服务器地址（例：smtp.qq.com） | ✅ |
+| `smtp_port` | SMTP 服务器端口 （例如：465）| ✅ |
+| `send_kindle_email` | Kindle 接收电子书的邮箱（`xxx@kindle.com`） | ✅ |
+| `library_account_email` | Z-Library 注册的账号邮箱（只存本地，自己填入，用于自动登录Z-Library下载电子书） | ✅ |
+| `library_password` | Z-Library 注册的账号密码（只存本地，自己填入） | ✅ |
 | `proxy_server` | 代理服务器地址（如需要） | ❌ |
 
 #### 常用邮箱 SMTP 配置
