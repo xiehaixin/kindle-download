@@ -7,28 +7,90 @@ description: >
 
 requirements:
   binaries:
-    - node
-    - python3
+    - name: node
+      version: ">=18.0.0"
+      description: "Node.js 运行时，用于执行 Playwright 自动化脚本"
+    - name: python3
+      version: ">=3.8.0"
+      description: "Python 运行时，用于发送邮件"
   node_modules:
-    - playwright
-  configs:
-    - path: ~/.config/kindle-download/auth.json
-      description: 包含 Z-Library 账户信息和 SMTP 邮件发送配置
-      required_fields:
-        - library_account_email
-        - library_password
-        - email
-        - auth_code
-        - send_kindle_email
-    - path: ~/.openclaw/workspace/skills/kindle-download/zlibraryUrl.json
-      description: Z-Library 镜像列表
-  network:
-    - description: 访问 Z-Library 镜像站点进行搜索和下载
-    - description: 使用 SMTP 服务发送邮件至 Kindle
-  storage:
-    - path: /tmp/kindle_downloads/
-      description: 临时存放下载的书籍和搜索截图
+    - name: playwright
+      version: ">=1.40.0"
+      description: "Web 自动化框架，需要安装 Chromium 浏览器"
+  system_dependencies:
+    - name: "Chromium Browser"
+      install: "npx playwright install chromium"
+      description: "Playwright 需要的 Chromium 浏览器二进制文件"
+  python_packages:
+    - name: requests
+      version: ">=2.28.0"
+      description: "HTTP 库，用于下载文件"
+
+credentials:
+  - name: KINDLE_SMTP_EMAIL
+    description: "SMTP 发送邮箱地址"
+    required: true
+    env_var: true
+    file_fallback: "auth.json -> email"
+  - name: KINDLE_SMTP_AUTH_CODE
+    description: "SMTP 授权码（非邮箱密码）"
+    required: true
+    sensitive: true
+    env_var: true
+    file_fallback: "auth.json -> auth_code"
+  - name: KINDLE_RECEIVER_EMAIL
+    description: "Kindle 接收邮箱 (xxx@kindle.com)"
+    required: true
+    env_var: true
+    file_fallback: "auth.json -> send_kindle_email"
+  - name: KINDLE_ZLIB_EMAIL
+    description: "Z-Library 账号邮箱"
+    required: true
+    env_var: true
+    file_fallback: "auth.json -> library_account_email"
+  - name: KINDLE_ZLIB_PASSWORD
+    description: "Z-Library 账号密码"
+    required: true
+    sensitive: true
+    env_var: true
+    file_fallback: "auth.json -> library_password"
+  - name: KINDLE_PROXY_SERVER
+    description: "代理服务器地址（可选）"
+    required: false
+    env_var: true
+    file_fallback: "auth.json -> proxy_server"
+
+configs:
+  - path: ~/.config/kindle-download/auth.json
+    description: "凭证配置文件（支持环境变量覆盖）"
+    required_fields:
+      - email
+      - auth_code
+      - send_kindle_email
+      - library_account_email
+      - library_password
+    security_note: "推荐使用环境变量存储敏感信息，文件权限应设置为 600"
+  - path: ~/.openclaw/workspace/skills/kindle-download/zlibraryUrl.json
+    description: "Z-Library 镜像列表"
+
+network:
+  - description: "访问 Z-Library 镜像站点进行搜索和下载"
+    domains:
+      - "zlib.li"
+      - "z-lib.sk"
+      - "*.zlibrary-global.se"
+  - description: "使用 SMTP 服务发送邮件至 Kindle"
+    ports: [465, 587]
+
+storage:
+  - path: /tmp/kindle_downloads/
+    description: "临时存放下载的书籍和搜索截图"
+    permissions: "读写"
 ---
+## 法律免责声明
+
+> 请仅在符合当地版权法规的前提下使用本技能。若下载的电子书受版权保护，请确保已获得合法授权或购买正版权限。
+
 
 # ⚠️ 严格执行规则（必须遵守）
 
@@ -129,10 +191,17 @@ python3 ~/.openclaw/workspace/skills/kindle-download/scripts/send_kindle.py "文
 **脚本输出**：NEED_SELECTION: ...
 **AI**：<qqimg>/tmp/kindle_downloads/last_search_result.png</qqimg>
 搜索结果包含多个不同的作者或出版社，请查看截图并告诉我您选择的作者或出版社。
-
 **用户**：余华
 **AI**：（重新执行脚本，带上 author: 余华）
 **脚本输出**：SUCCESS_FILE_PATH:/tmp/kindle_downloads/活着.epub
 **AI**：（执行发送脚本）
 **脚本输出**：SUCCESS: Email sent...
 **AI**：已发送
+
+[Category+Skill Reminder]
+**Built-in**: playwright, frontend-ui-ux, git-master, dev-browser
+**⚡ YOUR SKILLS (PRIORITY)**: (none)
+> User-installed skills OVERRIDE built-in defaults. ALWAYS prefer YOUR SKILLS when domain matches.
+```typescript
+task(category="visual-engineering", load_skills=["playwright"], run_in_background=true)
+```
